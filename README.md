@@ -1,11 +1,41 @@
 # On-Chain Order Matching Engine
 
-![Order Matching Engine Frontend Preview](assets/screenshot.png)
-
 > A production-grade Order Matching Engine rebuilt as a Solana on-chain program using Anchor/Rust.
 
 **Program ID:** `CgG3NfTRRTUcAx5qhCh4LWe1pX79WMBU8M4WfB69MP6j`  
 **Network:** Devnet
+
+---
+
+## Live Client Demo
+
+### 🖥️ Frontend (Next.js + Wallet Adapter)
+
+![OME Frontend Dashboard](assets/frontend-screenshot.png)
+
+The frontend connects live to Devnet via Solana Wallet Adapter. Users can:
+- Place bid/ask limit orders
+- View the live order book (auto-refreshes every 5s)
+- Trigger the permissionless crank via "Crank Match Engine" button
+- Track their position (Base/Quote locked & free balances)
+
+```bash
+# Run locally
+cd client/frontend
+npm install
+npm run dev
+# Open http://localhost:3000
+```
+
+### 🖥️ CLI Viewer (`scripts/view_book.js`)
+
+![OME CLI Order Book Viewer](assets/cli-screenshot.png)
+
+A lightweight Node.js CLI that fetches live order book data from Devnet and prints a formatted table:
+
+```bash
+node scripts/view_book.js
+```
 
 ---
 
