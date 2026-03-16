@@ -76,10 +76,22 @@ pub fn handler(ctx: Context<MatchOrders>) -> Result<()> {
     ask_pos.total_base_traded = ask_pos.total_base_traded.checked_add(fill_qty).ok_or(MatchingEngineError::Overflow)?;
     ask_pos.total_quote_traded = ask_pos.total_quote_traded.checked_add(fill_quote).ok_or(MatchingEngineError::Overflow)?;
     market.total_volume = market.total_volume.checked_add(fill_qty).ok_or(MatchingEngineError::Overflow)?;
-    if bid.quantity_remaining == 0 && market.open_orders_count > 0 { market.open_orders_count -= 1; }
-    if ask.quantity_remaining == 0 && market.open_orders_count > 0 { market.open_orders_count -= 1; }
-    if bid.quantity_remaining == 0 { market.best_bid = 0; }
-    if ask.quantity_remaining == 0 { market.best_ask = u64::MAX; }
+    if bid.quantity_remaining == 0 {
+        market.open_orders_count = market.open_orders_count.checked_sub(1).unwrap_or(0);
+        // Only reset best_bid if this order WAS the best bid
+        // NOTE: best_bid may be stale if other orders exist at same price.
+        // A full fix requires an off-chain sorted order book passed as hint.
+        if bid.price >= market.best_bid {
+            market.best_bid = 0;
+        }
+    }
+    if ask.quantity_remaining == 0 {
+        market.open_orders_count = market.open_orders_count.checked_sub(1).unwrap_or(0);
+        // Only reset best_ask if this order WAS the best ask
+        if ask.price <= market.best_ask {
+            market.best_ask = u64::MAX;
+        }
+    }
     emit!(OrdersMatched {
         market: market.key(), bid_order: bid.key(), ask_order: ask.key(),
         bid_trader: bid.trader, ask_trader: ask.trader,

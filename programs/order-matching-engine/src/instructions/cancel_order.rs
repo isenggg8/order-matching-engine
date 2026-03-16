@@ -50,7 +50,20 @@ pub fn handler(ctx: Context<CancelOrder>) -> Result<()> {
     }
     order.status = OrderStatus::Cancelled;
     order.quantity_remaining = 0;
-    if market.open_orders_count > 0 { market.open_orders_count -= 1; }
+    market.open_orders_count = market.open_orders_count.checked_sub(1).unwrap_or(0);
+    // Update best price hints if this was the best order
+    match order.side {
+        OrderSide::Bid => {
+            if order.price >= market.best_bid {
+                market.best_bid = 0;
+            }
+        }
+        OrderSide::Ask => {
+            if order.price <= market.best_ask {
+                market.best_ask = u64::MAX;
+            }
+        }
+    }
     let order_id = order.order_id;
     let side = order.side;
     emit!(OrderCancelled { market: market.key(), order: order.key(), trader: ctx.accounts.trader.key(), order_id, side, quantity_released: remaining });
