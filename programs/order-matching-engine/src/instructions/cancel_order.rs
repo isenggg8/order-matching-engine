@@ -16,7 +16,7 @@ pub struct CancelOrder<'info> {
         bump = order.bump,
         constraint = order.market == market.key(),
         constraint = order.trader == trader.key() @ MatchingEngineError::UnauthorizedCancel,
-        constraint = order.is_open() @ MatchingEngineError::OrderNotOpen,
+        constraint = order.is_open() @ MatchingEngineError::AlreadyFilled,
         close = trader
     )]
     pub order: Account<'info, Order>,
