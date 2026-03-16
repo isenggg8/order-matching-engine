@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+:root {
+  --bg-primary: #040508;
+  --bg-secondary: #0a0c12;
+  --bg-tertiary: #12141c;
+  --accent-purple: #7c3aed;
+  --accent-glow: rgba(124, 58, 237, 0.4);
+  --green-neon: #10b981;
+  --red-neon: #ef4444;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-active: rgba(124, 58, 237, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.title-font {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Glassmorphism card dashboard */
+.glass-card {
+  background: rgba(10, 12, 18, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: var(--border-active);
+  box-shadow: 0 4px 30px var(--accent-glow);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom table glow row on bids/asks */
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.order-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.order-row.bid { color: var(--green-neon); }
+.order-row.ask { color: var(--red-neon); }
+
+/* Buttons mechanics */
+.btn-action {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-action:hover {
+  transform: translateY(-1px);
+}
+
+.btn-action:active {
+  transform: translateY(0);
+}
+
+.btn-bid {
+  background: linear-gradient(135deg, #065f46 0%, #059669 100%);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(5, 150, 105, 0.2);
+}
+
+.btn-ask {
+  background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(220, 38, 38, 0.2);
+}
+
+.btn-crank {
+  background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
+}
+
+.btn-disabled {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Input fields wrapping */
+.input-custom {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  background: rgba(4, 5, 8, 0.5);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 13px;
+  box-sizing: border-box;
+  outline: none;
+  font-family: 'JetBrains Mono', monospace;
+  transition: border-color 0.2s ease;
+}
+
+.input-custom:focus {
+  border-color: var(--accent-purple);
+}
+
+/* Grid layout definition */
+.grid-container {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Notification wrapper customized implicitly */
+#toast-container * {
+  font-family: 'Inter', sans-serif !important;
+}

@@ -186,138 +186,188 @@ export default function Dashboard() {
   const spread = bids[0] && asks[0] ? asks[0].price.toNumber() - bids[0].price.toNumber() : null;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0f1117", color: "#e2e8f0", fontFamily: "monospace" }}>
-      {/* Header */}
-      <div style={{ borderBottom: "1px solid #1e2533", padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div>
-          <span style={{ color: "#7c3aed", fontWeight: 700, fontSize: 18 }}>OME</span>
-          <span style={{ color: "#64748b", marginLeft: 8, fontSize: 13 }}>On-Chain Order Matching Engine · Devnet</span>
+    <div style={{ minHeight: "100vh" }}>
+      {/* Top Navbar */}
+      <div style={{ borderBottom: "1px solid var(--border-subtle)", padding: "14px 32px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(4, 5, 8, 0.8)", backdropFilter: "blur(10px)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 10, height: 10, borderRadius: "50%", background: wallet.publicKey ? "var(--green-neon)" : "#475569", boxShadow: wallet.publicKey ? "0 0 10px var(--green-neon)" : "none" }} />
+          <div>
+            <span className="title-font" style={{ fontWeight: 700, fontSize: 20, letterSpacing: 1 }}>
+              <span className="gradient-text">OME</span>
+            </span>
+            <span style={{ color: "var(--text-secondary)", marginLeft: 12, fontSize: 12 }}>On-Chain Order Book</span>
+          </div>
         </div>
-        <WalletMultiButton style={{ fontSize: 13, height: 36 }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {market && <div className="glass-card" style={{ padding: "6px 12px", borderRadius: 6, fontSize: 12, color: "var(--text-muted)", border: "none" }}>Vol: <span className="mono" style={{ color: "#fff" }}>{market.totalVolume.toString()}</span></div>}
+          <WalletMultiButton className="title-font" style={{ fontSize: 13, height: 38, borderRadius: 8, background: "var(--accent-purple)", border: "none" }} />
+        </div>
       </div>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 16px" }}>
-
-        {/* Market input */}
-        <div style={{ marginBottom: 16 }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "24px 20px" }}>
+        {/* Marketplace Selection Bar */}
+        <div className="glass-card" style={{ marginBottom: 20, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12, background: "rgba(10,12,18,0.3)" }}>
+          <span style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }}>Active Market:</span>
           <input
             value={marketAddress}
             onChange={(e) => setMarketAddress(e.target.value)}
-            placeholder="Market PDA address..."
-            style={{ width: "100%", padding: "8px 12px", background: "#161b27", border: "1px solid #1e2533", borderRadius: 6, color: "#e2e8f0", fontSize: 12, boxSizing: "border-box" }}
+            placeholder="Auto-fetching active market..."
+            className="input-custom"
+            style={{ margin: 0, flex: 1, padding: "8px 12px", background: "rgba(0,0,0,0.2)" }}
           />
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-
-          {/* Order Book */}
-          <div style={{ background: "#161b27", border: "1px solid #1e2533", borderRadius: 8, padding: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8" }}>ORDER BOOK</span>
-              {market && <span style={{ fontSize: 11, color: "#475569" }}>vol: {market.totalVolume.toString()}</span>}
-            </div>
-
-            <div style={{ fontSize: 11, color: "#475569", display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-              <span>ID</span><span>PRICE</span><span>QTY</span>
-            </div>
-
-            {[...asks].reverse().slice(0, 5).map((a, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, padding: "3px 0", color: "#f87171" }}>
-                <span>#{a.orderId.toString()}</span>
-                <span>{a.price.toString()}</span>
-                <span>{a.quantityRemaining.toString()}</span>
+        <div className="grid-container">
+          {/* Panel Form / Place Order */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {/* Form Place Order */}
+            <div className="glass-card">
+              <div style={{ marginBottom: 16, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 10 }}>
+                <span className="title-font" style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", letterSpacing: 0.5 }}>PLACE NEW ORDER</span>
               </div>
-            ))}
 
-            {spread !== null && (
-              <div style={{ textAlign: "center", fontSize: 11, color: "#64748b", padding: "6px 0", borderTop: "1px solid #1e2533", borderBottom: "1px solid #1e2533", margin: "4px 0" }}>
-                spread: {spread}
+              {/* Side Selector */}
+              <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+                {(["bid", "ask"] as const).map((s) => (
+                  <button key={s} onClick={() => setOrderSide(s)}
+                    className={`btn-action title-font ${orderSide === s ? (s === "bid" ? "btn-bid" : "btn-ask") : "btn-disabled"}`}
+                    style={{ flex: 1, letterSpacing: 0.5, textTransform: "uppercase" }}>
+                    {s === "bid" ? "Bid (Buy)" : "Ask (Sell)"}
+                  </button>
+                ))}
               </div>
-            )}
 
-            {bids.slice(0, 5).map((b, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, padding: "3px 0", color: "#4ade80" }}>
-                <span>#{b.orderId.toString()}</span>
-                <span>{b.price.toString()}</span>
-                <span>{b.quantityRemaining.toString()}</span>
-              </div>
-            ))}
-
-            {bids.length === 0 && asks.length === 0 && (
-              <div style={{ color: "#475569", fontSize: 12, textAlign: "center", padding: "16px 0" }}>Empty</div>
-            )}
-
-            <button onClick={handleMatch} disabled={loading || !bids[0] || !asks[0]}
-              style={{ marginTop: 12, width: "100%", padding: "8px 0", background: bids[0] && asks[0] ? "#7c3aed" : "#1e2533", color: "#e2e8f0", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
-              ⚡ Crank Match Engine
-            </button>
-          </div>
-
-          {/* Place Order */}
-          <div style={{ background: "#161b27", border: "1px solid #1e2533", borderRadius: 8, padding: 16 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8" }}>PLACE ORDER</span>
-
-            <div style={{ display: "flex", gap: 8, marginTop: 12, marginBottom: 12 }}>
-              {(["bid", "ask"] as const).map((s) => (
-                <button key={s} onClick={() => setOrderSide(s)}
-                  style={{ flex: 1, padding: "8px 0", background: orderSide === s ? (s === "bid" ? "#166534" : "#7f1d1d") : "#1e2533", color: orderSide === s ? (s === "bid" ? "#4ade80" : "#f87171") : "#64748b", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
-                  {s === "bid" ? "BID (Buy)" : "ASK (Sell)"}
-                </button>
+              {/* Fields Inputs */}
+              {[["PRICE (QUOTE)", orderPrice, setOrderPrice], ["QUANTITY (BASE)", orderQty, setOrderQty]].map(([label, val, setter]: any) => (
+                <div key={label} style={{ marginBottom: 12 }}>
+                  <label style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 500 }}>{label}</label>
+                  <input value={val} onChange={(e) => setter(e.target.value)} placeholder="0.00" className="input-custom" />
+                </div>
               ))}
+
+              {/* Locks Estimate */}
+              {orderPrice && orderQty && !isNaN(parseFloat(orderPrice)) && !isNaN(parseFloat(orderQty)) && (
+                <div style={{ padding: "8px 12px", background: "rgba(255,b255,255,0.02)", borderRadius: 6, marginBottom: 16, fontSize: 12, color: "var(--text-secondary)" }}>
+                  Estimated Lock: <span className="mono" style={{ color: orderSide === "bid" ? "var(--green-neon)" : "var(--red-neon)" }}>
+                    {orderSide === "bid" ? `${parseFloat(orderPrice) * parseFloat(orderQty)} quote` : `${orderQty} base`}
+                  </span>
+                </div>
+              )}
+
+              <button onClick={handlePlaceOrder} disabled={loading || !wallet.publicKey || !orderPrice || !orderQty}
+                className={`btn-action title-font ${loading || !wallet.publicKey || !orderPrice || !orderQty ? "btn-disabled" : (orderSide === "bid" ? "btn-bid" : "btn-ask")}`}
+                style={{ height: 44, fontSize: 14, textTransform: "uppercase" }}>
+                {loading ? "Processing..." : `Place ${orderSide.toUpperCase()} Order`}
+              </button>
             </div>
 
-            {[["PRICE", orderPrice, setOrderPrice], ["QUANTITY", orderQty, setOrderQty]].map(([label, val, setter]: any) => (
-              <div key={label} style={{ marginBottom: 10 }}>
-                <label style={{ fontSize: 11, color: "#64748b" }}>{label}</label>
-                <input value={val} onChange={(e) => setter(e.target.value)} placeholder="0"
-                  style={{ display: "block", width: "100%", marginTop: 4, padding: "8px 10px", background: "#0f1117", border: "1px solid #2d3748", borderRadius: 6, color: "#e2e8f0", fontSize: 13, boxSizing: "border-box" }} />
-              </div>
-            ))}
-
-            {orderPrice && orderQty && !isNaN(parseFloat(orderPrice)) && !isNaN(parseFloat(orderQty)) && (
-              <div style={{ fontSize: 11, color: "#64748b", marginBottom: 10 }}>
-                Locks: {orderSide === "bid" ? `${parseFloat(orderPrice) * parseFloat(orderQty)} quote` : `${orderQty} base`}
-              </div>
-            )}
-
-            <button onClick={handlePlaceOrder} disabled={loading || !wallet.publicKey || !orderPrice || !orderQty}
-              style={{ width: "100%", padding: "10px 0", background: orderSide === "bid" ? "#166534" : "#7f1d1d", color: "#e2e8f0", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>
-              {loading ? "..." : `Place ${orderSide.toUpperCase()}`}
-            </button>
-
+            {/* Position / User Balances Section */}
             {position && (
-              <div style={{ marginTop: 14, padding: 12, background: "#0f1117", borderRadius: 6, border: "1px solid #1e2533" }}>
-                <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 8 }}>YOUR POSITION</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, fontSize: 12 }}>
-                  {[["Base free", position.baseFree, true], ["Base locked", position.baseLocked, false],
-                    ["Quote free", position.quoteFree, true], ["Quote locked", position.quoteLocked, false]].map(([k, v, highlight]: any) => (
-                    <><span style={{ color: "#64748b" }}>{k}</span><span style={{ color: highlight ? "#4ade80" : "#e2e8f0" }}>{v.toString()}</span></>
+              <div className="glass-card" style={{ background: "rgba(124, 58, 237, 0.03)" }}>
+                <div style={{ marginBottom: 16, borderBottom: "1px solid rgba(124, 58, 237, 0.1)", paddingBottom: 10 }}>
+                  <span className="title-font" style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-purple)", letterSpacing: 0.5 }}>YOUR POSITION</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px" }}>
+                  {[
+                    ["Base Free", position.baseFree, true], ["Base Locked", position.baseLocked, false],
+                    ["Quote Free", position.quoteFree, true], ["Quote Locked", position.quoteLocked, false]
+                  ].map(([k, v, highlight]: any) => (
+                    <div key={k} style={{ display: "flex", flexDirection: "column" }}>
+                      <span style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 2 }}>{k}</span>
+                      <span className="mono" style={{ fontSize: 15, fontWeight: 700, color: highlight ? "var(--green-neon)" : "var(--text-primary)" }}>
+                        {v.toString()}
+                      </span>
+                    </div>
                   ))}
                 </div>
                 {(position.baseFree.toNumber() > 0 || position.quoteFree.toNumber() > 0) && (
-                  <button onClick={handleSettle} disabled={loading}
-                    style={{ marginTop: 10, width: "100%", padding: "6px 0", background: "#1e3a5f", color: "#60a5fa", border: "1px solid #1d4ed8", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
-                    Settle Free Balances
+                  <button onClick={handleSettle} disabled={loading} className="btn-action btn-crank title-font" style={{ marginTop: 20, height: 38, fontSize: 12, background: "transparent", border: "1px solid var(--accent-purple)", color: "var(--accent-purple)" }}>
+                    {loading ? "Settling..." : "Settle Free Balances"}
                   </button>
                 )}
               </div>
             )}
           </div>
 
-          {/* TX Log */}
-          <div style={{ gridColumn: "1 / -1", background: "#161b27", border: "1px solid #1e2533", borderRadius: 8, padding: 16 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8" }}>TRANSACTION LOG</span>
-            {txLog.length === 0
-              ? <div style={{ color: "#475569", fontSize: 12, marginTop: 8 }}>No transactions yet.</div>
-              : txLog.map((t, i) => (
-                <div key={i} style={{ display: "flex", gap: 12, fontSize: 12, padding: "4px 0", borderBottom: "1px solid #1e2533" }}>
-                  <span style={{ color: "#94a3b8", minWidth: 220 }}>{t.label}</span>
-                  <a href={explorerUrl(t.sig)} target="_blank" rel="noreferrer" style={{ color: "#7c3aed" }}>
-                    {t.sig.slice(0, 8)}...{t.sig.slice(-6)} ↗
-                  </a>
+          {/* Panel Orderbook */}
+          <div className="glass-card" style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ marginBottom: 16, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span className="title-font" style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", letterSpacing: 0.5 }}>LIVE ORDER BOOK</span>
+            </div>
+
+            <div style={{ flex: 1 }}>
+              <div className="mono" style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", justifyContent: "space-between", padding: "0 8px 6px 8px", borderBottom: "1px solid rgba(255,255,255,0.02)" }}>
+                <span style={{ width: "25%" }}>ID</span><span style={{ width: "35%", textAlign: "right" }}>PRICE</span><span style={{ width: "35%", textAlign: "right" }}>REMAINING</span>
+              </div>
+
+              {/* ASKS (SELLS) */}
+              <div style={{ display: "flex", flexDirection: "column-reverse" }}>
+                {[...asks].reverse().slice(0, 8).map((a, i) => (
+                  <div key={i} className="order-row ask mono" style={{ fontSize: 13, padding: "5px 8px" }}>
+                    <span style={{ width: "25%", color: "var(--text-secondary)" }}>#{a.orderId.toString()}</span>
+                    <span style={{ width: "35%", textAlign: "right", fontWeight: 700 }}>{a.price.toString()}</span>
+                    <span style={{ width: "35%", textAlign: "right" }}>{a.quantityRemaining.toString()}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* SPREAD DIVIDER */}
+              {spread !== null ? (
+                <div style={{ textAlign: "center", fontSize: 12, color: "var(--text-secondary)", padding: "10px 0", background: "rgba(255,255,255,0.01)", borderTop: "1px solid var(--border-subtle)", borderBottom: "1px solid var(--border-subtle)", margin: "6px 0", borderRadius: 4 }}>
+                  <span className="title-font" style={{ fontWeight: 600, fontSize: 11, color: "var(--text-muted)" }}>SPREAD:</span> <span className="mono" style={{ color: "#fff", fontWeight: 700 }}>{spread}</span>
                 </div>
-              ))
-            }
+              ) : (
+                <div style={{ height: 1, background: "var(--border-subtle)", margin: "8px 0" }} />
+              )}
+
+              {/* BIDS (BUYS) */}
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                {bids.slice(0, 8).map((b, i) => (
+                  <div key={i} className="order-row bid mono" style={{ fontSize: 13, padding: "5px 8px" }}>
+                    <span style={{ width: "25%", color: "var(--text-secondary)" }}>#{b.orderId.toString()}</span>
+                    <span style={{ width: "35%", textAlign: "right", fontWeight: 700 }}>{b.price.toString()}</span>
+                    <span style={{ width: "35%", textAlign: "right" }}>{b.quantityRemaining.toString()}</span>
+                  </div>
+                ))}
+              </div>
+
+              {bids.length === 0 && asks.length === 0 && (
+                <div style={{ color: "var(--text-muted)", fontSize: 12, textAlign: "center", padding: "40px 0" }}>
+                  <div style={{ fontSize: 24, marginBottom: 8 }}>📊</div>
+                  No active orders on-chain
+                </div>
+              )}
+            </div>
+
+            <button onClick={handleMatch} disabled={loading || !bids[0] || !asks[0] || bids[0].price.toNumber() < asks[0].price.toNumber()}
+              className={`btn-action title-font btn-crank`}
+              style={{ marginTop: 20, height: 42, fontSize: 13, letterSpacing: 0.5, opacity: bids[0] && asks[0] && bids[0].price.toNumber() >= asks[0].price.toNumber() ? 1 : 0.6 }}>
+              ⚡ CRANK MATCH ENGINE
+            </button>
+          </div>
+
+          {/* Panel Logs */}
+          <div className="glass-card" style={{ gridColumn: "1 / -1" }}>
+            <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+              <span className="title-font" style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", letterSpacing: 0.5 }}>TRANSACTION LOG</span>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: txLog.length > 0 ? "var(--accent-purple)" : "var(--text-muted)" }} />
+            </div>
+            
+            {txLog.length === 0 ? (
+              <div style={{ color: "var(--text-muted)", fontSize: 12, padding: "10px 0" }}>No transactions executed yet.</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {txLog.map((t, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 6, border: "1px solid rgba(255,255,255,0.01)" }}>
+                    <span className="mono" style={{ color: "var(--text-primary)" }}>{t.label}</span>
+                    <a href={explorerUrl(t.sig)} target="_blank" rel="noreferrer" style={{ color: "var(--accent-purple)", textDecoration: "none", display: "flex", alignItems: "center", gap: 4, fontWeight: 500 }}>
+                      <span className="mono">{t.sig.slice(0, 8)}...{t.sig.slice(-8)}</span>
+                      <span style={{ fontSize: 10 }}>↗</span>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

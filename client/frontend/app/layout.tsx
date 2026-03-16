@@ -7,6 +7,7 @@ import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
+import "./globals.css";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const endpoint = process.env.NEXT_PUBLIC_RPC_URL ?? clusterApiUrl("devnet");
