@@ -1,3 +1,6 @@
+.env
+build.log
+build_output.log
 .anchor
 .DS_Store
 target
