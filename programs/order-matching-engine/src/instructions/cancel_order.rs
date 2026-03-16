@@ -50,6 +50,7 @@ pub fn handler(ctx: Context<CancelOrder>) -> Result<()> {
     }
     order.status = OrderStatus::Cancelled;
     order.quantity_remaining = 0;
+    position.order_count = position.order_count.checked_sub(1).unwrap_or(0);
     market.open_orders_count = market.open_orders_count.checked_sub(1).unwrap_or(0);
     // Update best price hints if this was the best order
     match order.side {
