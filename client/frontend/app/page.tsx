@@ -188,14 +188,22 @@ export default function Dashboard() {
   return (
     <div style={{ minHeight: "100vh" }}>
       {/* Top Navbar */}
-      <div style={{ borderBottom: "1px solid var(--border-subtle)", padding: "14px 32px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(4, 5, 8, 0.8)", backdropFilter: "blur(10px)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 10, height: 10, borderRadius: "50%", background: wallet.publicKey ? "var(--green-neon)" : "#475569", boxShadow: wallet.publicKey ? "0 0 10px var(--green-neon)" : "none" }} />
+      <div style={{ borderBottom: "1px solid var(--border-subtle)", padding: "14px 32px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(0, 0, 0, 0.4)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {wallet.publicKey ? (
+            <div className="badge-live">
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--accent-cyan)", boxShadow: "0 0 8px var(--accent-cyan)" }} />
+              LIVE DEVNET
+            </div>
+          ) : (
+            <div className="badge-live" style={{ background: "rgba(255,255,255,0.05)", borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
+              DISCONNECTED
+            </div>
+          )}
           <div>
-            <span className="title-font" style={{ fontWeight: 700, fontSize: 20, letterSpacing: 1 }}>
+            <span className="title-font" style={{ fontWeight: 700, fontSize: 18, letterSpacing: 1 }}>
               <span className="gradient-text">OME</span>
             </span>
-            <span style={{ color: "var(--text-secondary)", marginLeft: 12, fontSize: 12 }}>On-Chain Order Book</span>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
