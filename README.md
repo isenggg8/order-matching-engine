@@ -3,10 +3,12 @@
 A simplified Limit Order Book (LOB) matching engine built as an on-chain Rust program on Solana using the Anchor framework.
 
 ## Architecture Highlights
-- **Market:** Configures trading pair (Base Mint & Quote Mint).
-- **Order:** PDA representing limit order, placed by trader.
-- **UserPosition:** PDA managing trader balances / locked limits. Virtual digital ledger approach.
-- **Matching Rules:** `Bid >= Ask`, executed by a cranker mechanism.
+- **Program:** On-chain Solana program built with Anchor 0.30+.
+- **Market:** PDA that configures trading pair (Base Mint & Quote Mint), tracks total volume, and best bid/ask.
+- **Order:** PDA representing limit order, placed by trader. Contains status (Open, PartiallyFilled, Filled, Cancelled).
+- **UserPosition:** PDA managing trader balances / locked limits. Virtual digital ledger approach avoiding SPL token transfers during matching.
+- **Matching Rules:** Continuous Double Auction logic. `Bid >= Ask`, executed by a trustless cranker mechanism.
+- **Frontend Dashboard:** A Next.js web application using `@solana/wallet-adapter` to connect to the network. Allows users to view the Order Book in real-time and place orders directly on the Devnet.
 
 ## Deployment Details
 
