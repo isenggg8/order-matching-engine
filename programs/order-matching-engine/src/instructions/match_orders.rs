@@ -41,6 +41,7 @@ pub struct MatchOrders<'info> {
         bump = ask_position.bump,
     )]
     pub ask_position: Account<'info, UserPosition>,
+    #[account(constraint = crank.key() == market.crank_authority @ MatchingEngineError::UnauthorizedCrank)]
     pub crank: Signer<'info>,
 }
 

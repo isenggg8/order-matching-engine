@@ -13,11 +13,12 @@ pub struct Market {
     pub best_ask: u64,
     pub open_orders_count: u64,
     pub is_active: bool,
+    pub crank_authority: Pubkey,
     pub bump: u8,
 }
 
 impl Market {
-    pub const LEN: usize = 8 + 32 + 16 + 32 + 32 + 8 + 8 + 8 + 8 + 8 + 1 + 1;
+    pub const LEN: usize = 8 + 32 + 16 + 32 + 32 + 8 + 8 + 8 + 8 + 8 + 1 + 32 + 1;
 
     pub fn name_str(&self) -> &str {
         let end = self.name.iter().position(|&b| b == 0).unwrap_or(16);

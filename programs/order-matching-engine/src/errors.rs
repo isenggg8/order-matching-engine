@@ -18,6 +18,8 @@ pub enum MatchingEngineError {
     NoMatchFound,
     #[msg("Market name too long (max 16 bytes)")]
     NameTooLong,
+    #[msg("Unauthorized crank: only designated crank authority can match orders")]
+    UnauthorizedCrank,
     #[msg("Self-matching is not allowed")]
     SelfMatchNotAllowed,
     #[msg("Arithmetic overflow")]

@@ -35,6 +35,7 @@ pub fn handler(ctx: Context<InitializeMarket>, name: String) -> Result<()> {
     market.best_ask = u64::MAX;
     market.open_orders_count = 0;
     market.is_active = true;
+    market.crank_authority = ctx.accounts.authority.key();
     market.bump = ctx.bumps.market;
     emit!(MarketInitialized {
         market: market.key(),
