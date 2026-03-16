@@ -20,7 +20,7 @@ pub struct InitializeMarket<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn initialize_market_handler(ctx: Context<InitializeMarket>, name: String) -> Result<()> {
+pub fn handler(ctx: Context<InitializeMarket>, name: String) -> Result<()> {
     require!(name.len() <= 16, MatchingEngineError::NameTooLong);
     let market = &mut ctx.accounts.market;
     let mut name_bytes = [0u8; 16];

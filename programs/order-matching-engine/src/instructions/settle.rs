@@ -18,7 +18,7 @@ pub struct Settle<'info> {
     pub trader: Signer<'info>,
 }
 
-pub fn settle_handler(ctx: Context<Settle>) -> Result<()> {
+pub fn handler(ctx: Context<Settle>) -> Result<()> {
     let position = &mut ctx.accounts.user_position;
     let base_to_settle = position.base_free;
     let quote_to_settle = position.quote_free;

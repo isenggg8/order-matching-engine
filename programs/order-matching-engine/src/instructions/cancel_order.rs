@@ -30,7 +30,7 @@ pub struct CancelOrder<'info> {
     pub trader: Signer<'info>,
 }
 
-pub fn cancel_order_handler(ctx: Context<CancelOrder>) -> Result<()> {
+pub fn handler(ctx: Context<CancelOrder>) -> Result<()> {
     let order = &mut ctx.accounts.order;
     let position = &mut ctx.accounts.user_position;
     let market = &mut ctx.accounts.market;
