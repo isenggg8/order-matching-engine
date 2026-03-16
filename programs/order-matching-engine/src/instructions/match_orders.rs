@@ -52,7 +52,11 @@ pub fn handler(ctx: Context<MatchOrders>) -> Result<()> {
     let ask_pos = &mut ctx.accounts.ask_position;
     require!(bid.price >= ask.price, MatchingEngineError::NoMatchFound);
     let fill_qty = bid.quantity_remaining.min(ask.quantity_remaining);
-    let fill_price = ask.price;
+    let fill_price = if bid.order_id <= ask.order_id {
+        bid.price
+    } else {
+        ask.price
+    };
     let fill_quote = fill_price.checked_mul(fill_qty).ok_or(MatchingEngineError::Overflow)?;
     bid.quantity_filled = bid.quantity_filled.checked_add(fill_qty).ok_or(MatchingEngineError::Overflow)?;
     bid.quantity_remaining = bid.quantity_remaining.checked_sub(fill_qty).ok_or(MatchingEngineError::Overflow)?;

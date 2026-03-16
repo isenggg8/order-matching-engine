@@ -101,13 +101,13 @@ Unlike naive implementations that only track binary filled/unfilled state, this 
 
 | Concern | Web2 | Solana | Notes |
 |---------|------|--------|-------|
-| **Sorted order book** | O(log n) red-black tree in RAM | No native sorted structures | Off-chain indexer finds best orders, passes to crank |
-| **Throughput** | Millions of matches/sec in memory | ~50k TPS; account contention limits concurrent matches | Same account can't be written twice in one block |
-| **Trust** | Trust the exchange operator | Trustless — logic is immutable on-chain | Anyone can verify matching rules |
-| **Atomicity** | ACID transactions | Solana txs are atomic by default | Match + settle happen in one transaction |
-| **Storage cost** | Free (your own DB) | ~0.002 SOL per order (rent-exempt) | Returned to trader on cancel |
-| **Background jobs** | OS threads / cron | Crank pattern | Economic incentive keeps crankers running |
-| **Token custody** | Exchange holds your funds | Funds locked in PDAs per program logic | Can't be moved without matching valid instruction |
+| **Sorted order book** | O(log n) red-black tree in RAM | No native sorted structures | Off-chain indexer finds best orders, passes to crank. |
+| **Top-of-Book Caching** | Redis Cache | On-chain cache (`best_bid` / `best_ask`) | **Hackathon Limitation:** If a top order is fully filled, the on-chain cache currently resets to 0/MAX instead of finding the next best level (which would require a full on-chain tree). External indexers must be relied upon. |
+| **Cranker Exploits** | Matching engine runs centrally | Permissionless Crank | **Hackathon Limitation:** Currently, crankers can potentially bypass FIFO queues by matching specific orders. Production systems fix this via partial Top-of-Book pointers stored on-chain. |
+| **Throughput** | Millions of matches/sec in memory | ~50k TPS per account | Same account can't be written twice in one block. |
+| **Atomicity** | ACID transactions | Solana txs are atomic | Match + settle happen in one transaction. |
+| **Storage cost** | Free (your own DB) | ~0.002 SOL per order | **Rent Reclaim:** Users can close their filled/cancelled PDAs to reclaim byte storage rent! |
+| **Token custody** | Exchange holds your funds | Virtual ledger | **Hackathon Limitation:** To simplify, we use a virtual ledger (`UserPosition`) that simulates deposits/locks without invoking standard SPL Token CPI transfers. Production relies on Token Vaults. |
 | **Composability** | Closed system | Any program can CPI into this | DeFi protocols can integrate natively |
 
 ---
