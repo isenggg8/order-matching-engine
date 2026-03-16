@@ -347,9 +347,9 @@ export default function Dashboard() {
               )}
             </div>
 
-            <button onClick={handleMatch} disabled={loading || !bids[0] || !asks[0] || bids[0].price.toNumber() < asks[0].price.toNumber()}
+            <button onClick={handleMatch} disabled={loading || !bids[0] || !asks[0]}
               className={`btn-action title-font btn-crank`}
-              style={{ marginTop: 20, height: 42, fontSize: 13, letterSpacing: 0.5, opacity: bids[0] && asks[0] && bids[0].price.toNumber() >= asks[0].price.toNumber() ? 1 : 0.6 }}>
+              style={{ marginTop: 20, height: 42, fontSize: 13, letterSpacing: 0.5 }}>
               ⚡ CRANK MATCH ENGINE
             </button>
           </div>
