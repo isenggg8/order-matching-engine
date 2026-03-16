@@ -44,7 +44,7 @@ pub struct MatchOrders<'info> {
     pub crank: Signer<'info>,
 }
 
-pub fn match_orders_handler(ctx: Context<MatchOrders>) -> Result<()> {
+pub fn handler(ctx: Context<MatchOrders>) -> Result<()> {
     let bid = &mut ctx.accounts.bid_order;
     let ask = &mut ctx.accounts.ask_order;
     let market = &mut ctx.accounts.market;

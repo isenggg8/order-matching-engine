@@ -29,7 +29,7 @@ pub struct PlaceOrder<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn place_order_handler(ctx: Context<PlaceOrder>, side: OrderSide, price: u64, quantity: u64) -> Result<()> {
+pub fn handler(ctx: Context<PlaceOrder>, side: OrderSide, price: u64, quantity: u64) -> Result<()> {
     require!(quantity > 0, MatchingEngineError::InvalidQuantity);
     require!(price > 0, MatchingEngineError::InvalidPrice);
     let market = &mut ctx.accounts.market;
