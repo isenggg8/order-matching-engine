@@ -53,11 +53,9 @@ pub fn handler(ctx: Context<MatchOrders>) -> Result<()> {
     require!(bid.price >= ask.price, MatchingEngineError::NoMatchFound);
     require!(bid.trader != ask.trader, MatchingEngineError::SelfMatchNotAllowed);
     let fill_qty = bid.quantity_remaining.min(ask.quantity_remaining);
-    let fill_price = if bid.order_id <= ask.order_id {
-        bid.price
-    } else {
-        ask.price
-    };
+    // Fill price = ask.price (maker price), standard LOB convention
+    // Bidder gets refunded if bid.price > ask.price
+    let fill_price = ask.price;
     let fill_quote = fill_price.checked_mul(fill_qty).ok_or(MatchingEngineError::Overflow)?;
     bid.quantity_filled = bid.quantity_filled.checked_add(fill_qty).ok_or(MatchingEngineError::Overflow)?;
     bid.quantity_remaining = bid.quantity_remaining.checked_sub(fill_qty).ok_or(MatchingEngineError::Overflow)?;
