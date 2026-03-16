@@ -51,6 +51,7 @@ pub fn handler(ctx: Context<MatchOrders>) -> Result<()> {
     let bid_pos = &mut ctx.accounts.bid_position;
     let ask_pos = &mut ctx.accounts.ask_position;
     require!(bid.price >= ask.price, MatchingEngineError::NoMatchFound);
+    require!(bid.trader != ask.trader, MatchingEngineError::SelfMatchNotAllowed);
     let fill_qty = bid.quantity_remaining.min(ask.quantity_remaining);
     let fill_price = if bid.order_id <= ask.order_id {
         bid.price
