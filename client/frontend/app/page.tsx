@@ -255,7 +255,7 @@ export default function Dashboard() {
 
               {/* Locks Estimate */}
               {orderPrice && orderQty && !isNaN(parseFloat(orderPrice)) && !isNaN(parseFloat(orderQty)) && (
-                <div style={{ padding: "8px 12px", background: "rgba(255,b255,255,0.02)", borderRadius: 6, marginBottom: 16, fontSize: 12, color: "var(--text-secondary)" }}>
+                <div style={{ padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 6, marginBottom: 16, fontSize: 12, color: "var(--text-secondary)" }}>
                   Estimated Lock: <span className="mono" style={{ color: orderSide === "bid" ? "var(--green-neon)" : "var(--red-neon)" }}>
                     {orderSide === "bid" ? `${parseFloat(orderPrice) * parseFloat(orderQty)} quote` : `${orderQty} base`}
                   </span>
@@ -283,7 +283,7 @@ export default function Dashboard() {
                     <div key={k} style={{ display: "flex", flexDirection: "column" }}>
                       <span style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 2 }}>{k}</span>
                       <span className="mono" style={{ fontSize: 15, fontWeight: 700, color: highlight ? "var(--green-neon)" : "var(--text-primary)" }}>
-                        {v.toString()}
+                        {v.toNumber().toLocaleString()}
                       </span>
                     </div>
                   ))}
@@ -309,12 +309,12 @@ export default function Dashboard() {
               </div>
 
               {/* ASKS (SELLS) */}
-              <div style={{ display: "flex", flexDirection: "column-reverse" }}>
+              <div style={{ display: "flex", flexDirection: "column-reverse", minHeight: 80 }}>
                 {[...asks].reverse().slice(0, 8).map((a, i) => (
                   <div key={i} className="order-row ask mono" style={{ fontSize: 13, padding: "5px 8px" }}>
                     <span style={{ width: "25%", color: "var(--text-secondary)" }}>#{a.orderId.toString()}</span>
-                    <span style={{ width: "35%", textAlign: "right", fontWeight: 700 }}>{a.price.toString()}</span>
-                    <span style={{ width: "35%", textAlign: "right" }}>{a.quantityRemaining.toString()}</span>
+                    <span style={{ width: "35%", textAlign: "right", fontWeight: 700 }}>{a.price.toNumber().toLocaleString()}</span>
+                    <span style={{ width: "35%", textAlign: "right" }}>{a.quantityRemaining.toNumber().toLocaleString()}</span>
                   </div>
                 ))}
               </div>
@@ -329,12 +329,12 @@ export default function Dashboard() {
               )}
 
               {/* BIDS (BUYS) */}
-              <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", flexDirection: "column", minHeight: 80 }}>
                 {bids.slice(0, 8).map((b, i) => (
                   <div key={i} className="order-row bid mono" style={{ fontSize: 13, padding: "5px 8px" }}>
                     <span style={{ width: "25%", color: "var(--text-secondary)" }}>#{b.orderId.toString()}</span>
-                    <span style={{ width: "35%", textAlign: "right", fontWeight: 700 }}>{b.price.toString()}</span>
-                    <span style={{ width: "35%", textAlign: "right" }}>{b.quantityRemaining.toString()}</span>
+                    <span style={{ width: "35%", textAlign: "right", fontWeight: 700 }}>{b.price.toNumber().toLocaleString()}</span>
+                    <span style={{ width: "35%", textAlign: "right" }}>{b.quantityRemaining.toNumber().toLocaleString()}</span>
                   </div>
                 ))}
               </div>
