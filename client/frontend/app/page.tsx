@@ -5,6 +5,8 @@ import * as anchor from "@coral-xyz/anchor";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
+import { toast } from "react-hot-toast";
+import idl from "./order_matching_engine.json";
 
 const PROGRAM_ID = new PublicKey(
   process.env.NEXT_PUBLIC_PROGRAM_ID ?? "CgG3NfTRRTUcAx5qhCh4LWe1pX79WMBU8M4WfB69MP6j"
@@ -33,7 +35,7 @@ export default function Dashboard() {
   const { connection } = useConnection();
   const wallet = useWallet();
 
-  const [program, setProgram] = useState<anchor.Program | null>(null);
+  const [program, setProgram] = useState<any>(null);
   const [market, setMarket] = useState<any>(null);
   const [bids, setBids] = useState<any[]>([]);
   const [asks, setAsks] = useState<any[]>([]);
@@ -51,6 +53,8 @@ export default function Dashboard() {
     if (!wallet.publicKey) return;
     const provider = new anchor.AnchorProvider(connection, wallet as any, { commitment: "confirmed" });
     anchor.setProvider(provider);
+    const programInstance = new anchor.Program(idl as anchor.Idl, provider);
+    setProgram(programInstance as any);
   }, [wallet.publicKey, connection]);
 
   const logTx = (label: string, sig: string) => {
@@ -58,25 +62,41 @@ export default function Dashboard() {
   };
 
   const refresh = useCallback(async () => {
-    if (!program || !marketAddress) return;
+    if (!program) return;
     setLoading(true);
     try {
-      const marketPda = new PublicKey(marketAddress);
+      let activeMarketAddress = marketAddress;
+      
+      // Auto-fetch market if not set
+      if (!activeMarketAddress) {
+        const allMarkets = await program.account.market.all();
+        if (allMarkets.length > 0) {
+          activeMarketAddress = allMarkets[0].publicKey.toBase58();
+          setMarketAddress(activeMarketAddress);
+        } else {
+          setLoading(false);
+          return;
+        }
+      }
+
+      const marketPda = new PublicKey(activeMarketAddress);
       const marketState = await program.account.market.fetch(marketPda);
       setMarket(marketState);
 
-      const maxId = marketState.nextOrderId.toNumber();
+      // Fast fetch with .all()
+      const allOrderAccounts = await program.account.order.all([
+        { memcmp: { offset: 8, bytes: marketPda.toBase58() } }
+      ]);
+      
       const b: any[] = [], a: any[] = [];
-      for (let i = 1; i < maxId; i++) {
-        try {
-          const [orderPda] = getOrderPda(marketPda, BigInt(i), PROGRAM_ID);
-          const order = await program.account.order.fetch(orderPda);
-          const isOpen = "open" in order.status || "partiallyFilled" in order.status;
-          if (!isOpen) continue;
-          if ("bid" in order.side) b.push({ ...order, pda: orderPda });
-          else a.push({ ...order, pda: orderPda });
-        } catch {}
+      for (const orderAcc of allOrderAccounts) {
+        const order = orderAcc.account;
+        const isOpen = "open" in order.status || "partiallyFilled" in order.status;
+        if (!isOpen) continue;
+        if ("bid" in order.side) b.push({ ...order, pda: orderAcc.publicKey });
+        else a.push({ ...order, pda: orderAcc.publicKey });
       }
+
       b.sort((x, y) => y.price.toNumber() - x.price.toNumber());
       a.sort((x, y) => x.price.toNumber() - y.price.toNumber());
       setBids(b);
@@ -96,8 +116,9 @@ export default function Dashboard() {
 
   const handlePlaceOrder = async () => {
     if (!program || !wallet.publicKey || !marketAddress) return;
-    const price = parseInt(orderPrice), qty = parseInt(orderQty);
-    if (!price || !qty) return;
+    const price = parseFloat(orderPrice);
+    const qty = parseFloat(orderQty);
+    if (!price || !qty || isNaN(price) || isNaN(qty)) return;
     setLoading(true);
     try {
       const marketPda = new PublicKey(marketAddress);
@@ -110,16 +131,20 @@ export default function Dashboard() {
         .accounts({ market: marketPda, order: orderPda, userPosition: posPda, trader: wallet.publicKey, systemProgram: SystemProgram.programId })
         .rpc();
       logTx(`Place ${orderSide.toUpperCase()} @ ${price}`, tx);
+      toast.success(`Order placed: ${qty} @ ${price}`);
       setOrderPrice(""); setOrderQty("");
       await refresh();
-    } catch (e: any) { alert(e.message); }
+    } catch (e: any) { 
+      toast.error(e.message || "Custom Error");
+      console.error(e);
+    }
     setLoading(false);
   };
 
   const handleMatch = async () => {
     if (!program || !wallet.publicKey || !marketAddress || !bids[0] || !asks[0]) return;
     if (bids[0].price.toNumber() < asks[0].price.toNumber()) {
-      alert("No match: bid price < ask price"); return;
+      toast.error("No overlap: Best bid < Best ask"); return;
     }
     setLoading(true);
     try {
@@ -130,8 +155,12 @@ export default function Dashboard() {
         .accounts({ market: marketPda, bidOrder: bids[0].pda, askOrder: asks[0].pda, bidPosition: bidPosPda, askPosition: askPosPda, crank: wallet.publicKey })
         .rpc();
       logTx(`Match bid #${bids[0].orderId} vs ask #${asks[0].orderId}`, tx);
+      toast.success("Orders matched successfully!");
       await refresh();
-    } catch (e: any) { alert(e.message); }
+    } catch (e: any) { 
+      toast.error(e.message || "Custom Error");
+      console.error(e);
+    }
     setLoading(false);
   };
 
@@ -145,8 +174,12 @@ export default function Dashboard() {
         .accounts({ market: marketPda, userPosition: posPda, trader: wallet.publicKey })
         .rpc();
       logTx("Settle balances", tx);
+      toast.success("Balances settled!");
       await refresh();
-    } catch (e: any) { alert(e.message); }
+    } catch (e: any) { 
+      toast.error(e.message || "Custom Error");
+      console.error(e);
+    }
     setLoading(false);
   };
 
@@ -241,9 +274,9 @@ export default function Dashboard() {
               </div>
             ))}
 
-            {orderPrice && orderQty && (
+            {orderPrice && orderQty && !isNaN(parseFloat(orderPrice)) && !isNaN(parseFloat(orderQty)) && (
               <div style={{ fontSize: 11, color: "#64748b", marginBottom: 10 }}>
-                Locks: {orderSide === "bid" ? `${parseInt(orderPrice) * parseInt(orderQty)} quote` : `${orderQty} base`}
+                Locks: {orderSide === "bid" ? `${parseFloat(orderPrice) * parseFloat(orderQty)} quote` : `${orderQty} base`}
               </div>
             )}
 

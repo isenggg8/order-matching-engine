@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { Toaster } from "react-hot-toast";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
@@ -19,7 +20,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ margin: 0 }}>
         <ConnectionProvider endpoint={endpoint}>
           <WalletProvider wallets={wallets} autoConnect>
-            <WalletModalProvider>{children}</WalletModalProvider>
+            <WalletModalProvider>
+              <Toaster position="bottom-right" />
+              {children}
+            </WalletModalProvider>
           </WalletProvider>
         </ConnectionProvider>
       </body>
