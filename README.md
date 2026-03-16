@@ -1,5 +1,7 @@
 # On-Chain Order Matching Engine
 
+![Order Matching Engine Frontend Preview](assets/screenshot.png)
+
 > A production-grade Order Matching Engine rebuilt as a Solana on-chain program using Anchor/Rust.
 
 **Program ID:** `CgG3NfTRRTUcAx5qhCh4LWe1pX79WMBU8M4WfB69MP6j`  
